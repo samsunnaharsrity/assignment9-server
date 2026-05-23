@@ -65,7 +65,7 @@ const verifyToken = async (req, res, next) => {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const db = client.db("StudyNook")
     const roomsData = db.collection("rooms")
     const enrollmentData = db.collection("enrollment")
