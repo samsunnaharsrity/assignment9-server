@@ -1,16 +1,23 @@
 {
-  "name": "assignment9-server",
+  "name": "assignment-9-server",
   "version": "1.0.0",
-  "description": "StudyNook Backend Server",
+  "description": "StudyNook Backend Server - Study room booking API built with Express and MongoDB",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "server": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "study-nook",
+    "express",
+    "mongodb",
+    "backend",
+    "booking-system"
+  ],
+  "author": "StudyNook Team",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
