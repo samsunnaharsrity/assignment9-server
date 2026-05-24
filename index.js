@@ -198,6 +198,41 @@ const verifyToken = async (req, res, next) => {
       res.send(result);
     });
 
+
+  app.put("/rooms/:id", verifyToken, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const email = req.user.email;
+
+    const room = await rooms.findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (room.ownerEmail !== email) {
+      return res.status(403).json({
+        message: "Forbidden access",
+      });
+    }
+
+    const updatedRoom = req.body;
+
+    const result = await rooms.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: updatedRoom,
+      }
+    );
+
+    res.send(result);
+  } catch (err) {
+    res.status(500).json({ message: "Update failed" });
+  }
+});
+
     // console.log("MongoDB Connected 🚀");
 //   } catch (err) {
 //     console.log(err);
