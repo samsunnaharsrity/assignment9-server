@@ -115,7 +115,7 @@ const verifyToken = async (req, res, next) => {
     });
 
     // Delete room
-    app.delete("/rooms/:id", verifyToken, async (req, res) => {
+    app.delete("/bookings/:id", verifyToken, async (req, res) => {
       const result = await rooms.deleteOne({
         _id: new ObjectId(req.params.id),
       });
@@ -190,7 +190,7 @@ const verifyToken = async (req, res, next) => {
     });
 
     // Cancel booking
-    app.delete("/bookings/:id", verifyToken, async (req, res) => {
+    app.post("/bookings", verifyToken, async (req, res) => {
       const result = await bookings.deleteOne({
         _id: new ObjectId(req.params.id),
       });
@@ -203,7 +203,7 @@ const verifyToken = async (req, res, next) => {
   const id = req.params.id;
   const email = req.user.email;
 
-  const room = await roomsCollection.findOne({
+  const room = await rooms.findOne({
     _id: new ObjectId(id),
   });
 
@@ -215,7 +215,7 @@ const verifyToken = async (req, res, next) => {
 
   const updatedRoom = req.body;
 
-  const result = await roomsCollection.updateOne(
+  const result = await rooms.updateOne(
     { _id: new ObjectId(id) },
     {
       $set: updatedRoom,
