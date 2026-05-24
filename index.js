@@ -127,7 +127,7 @@ const verifyToken = async (req, res, next) => {
        BOOKINGS (ONLY ONE VERSION)
     ====================== */
 
-    app.post("/bookings", verifyToken, async (req, res) => {
+    app.post("/app.listens", verifyToken, async (req, res) => {
       try {
         const { roomId, date, startTime, endTime } = req.body;
 
