@@ -53,9 +53,9 @@ const verifyToken = async (req, res, next) => {
 /* ======================
    DB + ROUTES
 ====================== */
-async function run() {
-  try {
-    await client.connect();
+// async function run() {
+//   try {
+//     await client.connect();
 
     const db = client.db("StudyNook");
     const rooms = db.collection("rooms");
@@ -198,13 +198,13 @@ async function run() {
       res.send(result);
     });
 
-    console.log("MongoDB Connected 🚀");
-  } catch (err) {
-    console.log(err);
-  }
-}
+    // console.log("MongoDB Connected 🚀");
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
-run();
+// run();
 
 /* ======================
    EXPORT (Vercel)
