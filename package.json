@@ -1,5 +1,5 @@
 {
-  "name": "assignment-9-server",
+  "name": "assignment9-server",
   "version": "1.0.0",
   "description": "StudyNook Backend Server - Study room booking API built with Express and MongoDB",
   "main": "index.js",
