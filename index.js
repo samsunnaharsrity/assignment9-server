@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ======================
+/* 
    ENV
 ====================== */
 const uri = process.env.MONGODB_URL;
@@ -53,9 +53,18 @@ const verifyToken = async (req, res, next) => {
 /* ======================
    DB + ROUTES
 ====================== */
-// async function run() {
-//   try {
-//     await client.connect();
+async function run() {
+  try {
+    await client.connect();
+
+    console.log("MongoDB Connected 🚀");
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+run();
 
     const db = client.db("StudyNook");
     const rooms = db.collection("rooms");
@@ -115,7 +124,7 @@ const verifyToken = async (req, res, next) => {
     });
 
     // Delete room
-    app.delete("/bookings/:id", verifyToken, async (req, res) => {
+    app.delete("/rooms/:id", verifyToken, async (req, res) => {
       const result = await rooms.deleteOne({
         _id: new ObjectId(req.params.id),
       });
@@ -127,7 +136,7 @@ const verifyToken = async (req, res, next) => {
        BOOKINGS (ONLY ONE VERSION)
     ====================== */
 
-    app.post("/app.listens", verifyToken, async (req, res) => {
+    app.post("/bookings", verifyToken, async (req, res) => {
       try {
         const { roomId, date, startTime, endTime } = req.body;
 
@@ -158,16 +167,22 @@ const verifyToken = async (req, res, next) => {
           });
         }
 
-        const result = await bookings.insertOne({
-          roomId,
-          userId: req.user.id,
-          userEmail: req.user.email,
-          date,
-          startTime,
-          endTime,
-          status: "confirmed",
-          bookedAt: new Date(),
-        });
+const result = await bookings.insertOne({
+  roomId,
+
+  roomName: room.roomName,
+  roomImage: room.roomImage,
+
+  userId: req.user.id,
+  userEmail: req.user.email,
+
+  date,
+  startTime,
+  endTime,
+
+  status: "confirmed",
+  bookedAt: new Date(),
+});
 
         await rooms.updateOne(
           { _id: new ObjectId(roomId) },
@@ -190,13 +205,13 @@ const verifyToken = async (req, res, next) => {
     });
 
     // Cancel booking
-    app.post("/bookings", verifyToken, async (req, res) => {
-      const result = await bookings.deleteOne({
-        _id: new ObjectId(req.params.id),
-      });
+app.delete("/bookings/:id", verifyToken, async (req, res) => {
+  const result = await bookings.deleteOne({
+    _id: new ObjectId(req.params.id),
+  });
 
-      res.send(result);
-    });
+  res.send(result);
+});
 
 
     app.put("/rooms/:id", verifyToken, async (req, res) => {
