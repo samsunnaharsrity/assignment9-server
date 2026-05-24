@@ -35,19 +35,27 @@ const JWKS = createRemoteJWKSet(
 );
 
 const verifyToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+    try {
+        const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+        if (!authHeader) {
+            return res.status(401).json({ message: "Unauthorized access" });
+        }
 
-  try {
-    const { payload } = await jwtVerify(token, JWKS);
-    req.user = payload;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid Token" });
-  }
+        const token = authHeader.split(" ")[1];
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ message: "Invalid token" });
+            }
+
+            req.decoded = decoded;
+            next();
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 /* ======================
