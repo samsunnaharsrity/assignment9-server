@@ -35,6 +35,8 @@ const JWKS = createRemoteJWKSet(
 );
 
 const verifyToken = async (req, res, next) => {
+
+  
   try {
     const authHeader = req.headers.authorization;
 
@@ -44,13 +46,23 @@ const verifyToken = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
+    console.log("TOKEN:", token);
+
+    if (!token) {
+      return res.status(401).json({ message: "Token missing" });
+    }
+
     const { payload } = await jwtVerify(token, JWKS);
 
     req.user = payload;
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    console.log("JWT ERROR:", error);
+
+    return res.status(401).json({
+      message: "Invalid token"
+    });
   }
 };
 /* ======================
@@ -91,17 +103,28 @@ run();
     });
 
     // Get single room
-    app.get("/rooms/:id", async (req, res) => {
-      const result = await rooms.findOne({
-        _id: new ObjectId(req.params.id),
-      });
+app.get("/rooms/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
 
-      if (!result) {
-        return res.status(404).json({ message: "Room not found" });
-      }
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid room id" });
+    }
 
-      res.send(result);
+    const result = await rooms.findOne({
+      _id: new ObjectId(id),
     });
+
+    if (!result) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
     // Create room
     app.post("/rooms", verifyToken, async (req, res) => {
