@@ -35,29 +35,24 @@ const JWKS = createRemoteJWKSet(
 );
 
 const verifyToken = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
+  try {
+    const authHeader = req.headers.authorization;
 
-        if (!authHeader) {
-            return res.status(401).json({ message: "Unauthorized access" });
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-            if (err) {
-                return res.status(401).json({ message: "Invalid token" });
-            }
-
-            req.decoded = decoded;
-            next();
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!authHeader) {
+      return res.status(401).json({ message: "Unauthorized access" });
     }
-};
 
+    const token = authHeader.split(" ")[1];
+
+    const { payload } = await jwtVerify(token, JWKS);
+
+    req.user = payload;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
 /* ======================
    DB + ROUTES
 ====================== */
