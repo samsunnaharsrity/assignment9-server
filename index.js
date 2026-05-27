@@ -72,7 +72,7 @@ async function run() {
   try {
     await client.connect();
 
-    console.log("MongoDB Connected 🚀");
+    console.log("MongoDB Connected");
 
   } catch (err) {
     console.log(err);
