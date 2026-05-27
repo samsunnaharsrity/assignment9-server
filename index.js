@@ -89,7 +89,7 @@ run();
        HEALTH CHECK
     ====================== */
     app.get("/", (req, res) => {
-      res.send("StudyNook API Running 🚀");
+      res.send("StudyNook API Running...");
     });
 
     /* ======================
@@ -162,64 +162,84 @@ app.get("/rooms/:id", async (req, res) => {
        BOOKINGS (ONLY ONE VERSION)
     ====================== */
 
-    app.post("/bookings", verifyToken, async (req, res) => {
-      try {
-        const { roomId, date, startTime, endTime } = req.body;
+app.post("/bookings", verifyToken, async (req, res) => {
+  try {
 
-        const room = await rooms.findOne({
-          _id: new ObjectId(roomId),
-        });
+    const { roomId, date, startTime, endTime } = req.body;
 
-        if (!room) {
-          return res.status(404).json({ message: "Room not found" });
-        }
-
-        // conflict check
-        const conflict = await bookings.findOne({
-          roomId,
-          date,
-          status: "confirmed",
-          $or: [
-            {
-              startTime: { $lt: endTime },
-              endTime: { $gt: startTime },
-            },
-          ],
-        });
-
-        if (conflict) {
-          return res.status(400).json({
-            message: "Time slot already booked",
-          });
-        }
-
-const result = await bookings.insertOne({
-  roomId,
-
-  roomName: room.roomName,
-  roomImage: room.roomImage,
-
-  userId: req.user.id,
-  userEmail: req.user.email,
-
-  date,
-  startTime,
-  endTime,
-
-  status: "confirmed",
-  bookedAt: new Date(),
-});
-
-        await rooms.updateOne(
-          { _id: new ObjectId(roomId) },
-          { $inc: { enrollmentCount: 1 } }
-        );
-
-        res.send(result);
-      } catch (err) {
-        res.status(500).json({ message: "Booking failed" });
-      }
+    const room = await rooms.findOne({
+      _id: new ObjectId(roomId),
     });
+
+    if (!room) {
+      return res.status(404).json({
+        message: "Room not found",
+      });
+    }
+
+    const conflict = await bookings.findOne({
+      roomId,
+      date,
+      status: "confirmed",
+      $or: [
+        {
+          startTime: { $lt: endTime },
+          endTime: { $gt: startTime },
+        },
+      ],
+    });
+
+    if (conflict) {
+      return res.status(400).json({
+        message: "Time slot already booked",
+      });
+    }
+
+    console.log("REQ USER:", req.user);
+
+    const result = await bookings.insertOne({
+
+      roomId,
+
+      roomName: room.roomName,
+      roomImage: room.roomImage,
+
+      userId: req.user.id,
+
+      userEmail:
+        req.user.email ||
+        req.user.user?.email,
+
+      date,
+      startTime,
+      endTime,
+
+      status: "confirmed",
+
+      bookedAt: new Date(),
+    });
+
+    await rooms.updateOne(
+      { _id: new ObjectId(roomId) },
+      {
+        $inc: {
+          enrollmentCount: 1,
+        },
+      }
+    );
+
+    res.send(result);
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+      message: "Booking failed",
+    });
+
+  }
+});
 
     // My bookings
     app.get("/bookings", verifyToken, async (req, res) => {
